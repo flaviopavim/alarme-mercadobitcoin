@@ -63,6 +63,8 @@ line='--------------------------------------------------------------------------
 print('Bot iniciado')
 print(line)
 
+allowed=['btc','bch','eth','ltc','doge']
+
 while(1):
     try:
         wallet=execute({
@@ -77,7 +79,7 @@ while(1):
         print(line)
         
         for coin in wallet['response_data']['balance']:
-            if (coin!='brl'):
+            if (coin!='brl' and coin in allowed):
                 arr=json.loads(getHtml('https://www.mercadobitcoin.net/api/'+coin+'/ticker/'))
                 last=float(arr['ticker']['last'])
                 low=float(arr['ticker']['low'])
@@ -109,13 +111,23 @@ while(1):
                 if len(orders['response_data']['orders'])>0:
                     print(line)
 
+                str_end=''
+                if low*100/last>99.7:
+                    play('question')
+                    str_end=' - Caindo'
+
+                if last*100/high>99.7:
+                    play('question')
+                    str_end=' - Subindo'
+
                 printstr=(
                     coin.ljust(6)+
                     (str("{:.2f}".format(low*100/last))+'% ').ljust(9)+
                     ('low: '+str("{:.3f}".format(low))).ljust(15) +' '+
                     ('last: '+str("{:.3f}".format(last))).ljust(16) +' '+
                     ('high: '+str("{:.3f}".format(high))).ljust(16) +' '+
-                    (str("{:.2f}".format(last*100/high))+'% ').ljust(9)
+                    (str("{:.2f}".format(last*100/high))+'% ').ljust(9)+
+                    str_end
                 )
 
                 available=float(wallet['response_data']['balance'][coin]['available'])
